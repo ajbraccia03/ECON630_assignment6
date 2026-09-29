@@ -71,6 +71,21 @@ downstream results:
 > that was wrong rather than the data. Moved to 2006-11 (−0.14), the deepest
 > month of that inversion, and a second check on 2023-07 was added.
 
+## Defining an inversion episode
+Added 2026-09-28, while building the charts — the original plan measured lead
+times per "episode" without saying what separates one episode from the next, and
+the spread crosses zero more often than there are distinct inversions.
+
+Runs of `spread < 0` separated by a gap of **three months or less** are merged
+into a single episode (`MAX_GAP = 3`), and single-month dips are kept rather
+than filtered out. Keeping them is the consequential half of the rule: 1990-03
+and 1998-06 are both one-month dips, and discarding them would throw away one
+real signal and the clearest false alarm in the sample. Lead time is measured
+from the **first** month of an episode to the first month of the next recession.
+
+`MAX_GAP` is a named constant so the sensitivity of the lead times to this
+choice can be checked.
+
 ## Charts
 1. **Line chart** of the spread over time, a horizontal line at 0, and recession
    bars shaded using `USREC` + `fill_between` — direct reuse of the week-4
