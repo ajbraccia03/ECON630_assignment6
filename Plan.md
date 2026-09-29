@@ -110,6 +110,17 @@ choice can be checked.
    get there, and this is flagged as self-directed in the "how I used Claude
    Code" writeup.
 
+3. **The same logistic regression with HAC standard errors**
+   (`cov_type="HAC", cov_kwds={"maxlags": 12}`). Added 2026-09-28, during the
+   tests stage. Tests 1 and 2 as written both assume independent observations,
+   which monthly recession data plainly violates — the 31 recession months are
+   four contiguous episodes. Re-fitting with Newey-West standard errors leaves
+   the coefficient unchanged and asks how much of its apparent precision is
+   real. It turns out to be the decisive result: p moves from 0.0001 to 0.09,
+   so the relationship is not significant at 5% once autocorrelation is
+   allowed for. Without this the notebook would have reported a confidence the
+   data does not support.
+
 **Limitation to flag up front:** with only four full recessions in the 1990–
 present window, the regression is best read as a compact description of the
 same pattern the charts show, not a rigorously powered causal test. This will
