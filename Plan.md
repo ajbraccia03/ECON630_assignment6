@@ -52,12 +52,24 @@ downstream results:
 - `assert gs10.index.is_monotonic_increasing` — dates are in order (no scrambled pull).
 - After merging: `assert len(spread) == len(usrec_aligned)` — the two series line
   up one-to-one, no silent row loss from a bad merge.
-- Spot check: `assert spread.loc["2007-09"] < 0` — the 10y–2y spread is known to
-  be negative in September 2007, ahead of the Great Recession; if this fails,
-  something upstream (units, sign, wrong series ID) is wrong.
+- Spot check: `assert spread.loc["2006-11"].item() < 0` — the 10y–2y spread is
+  known to be negative in November 2006, ahead of the Great Recession; if this
+  fails, something upstream (units, sign, wrong series ID) is wrong.
+- Second spot check: `assert spread.loc["2023-07"].item() < 0` — same test on the
+  2022–24 episode, whose deepest month is unambiguous (−0.93).
 - `assert spread.between(-5, 5).all()` — the spread should stay within a
   plausible range in percentage points; anything wildly outside that suggests
   bad units or a data error.
+
+> **Revised 2026-09-28 — the original spot check was wrong.** This section first
+> asserted `spread.loc["2007-09"] < 0`, on the belief that the curve was inverted
+> in September 2007. It was not: the spread that month is **+0.51**. The inversion
+> ahead of the 2007–09 recession ran from 2006-02 to 2007-05, and by September
+> 2007 the Fed had begun cutting and the curve had re-steepened. Caught while
+> building the validation cell, when the assert failed against live FRED data —
+> which is exactly what a spot check is for, even though here it was the check
+> that was wrong rather than the data. Moved to 2006-11 (−0.14), the deepest
+> month of that inversion, and a second check on 2023-07 was added.
 
 ## Charts
 1. **Line chart** of the spread over time, a horizontal line at 0, and recession
