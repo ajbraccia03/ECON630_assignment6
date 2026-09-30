@@ -291,6 +291,16 @@ gap (1980-04 to 1980-09). At `MAX_GAP = 4` or more they would merge, and the
    contiguous episodes" and gave the p-values as the finding. Both came from the
    1990 sample.)*
 
+   **Result on the 1976-06 sample (2026-09-29):** it does not hold. The
+   coefficient is −1.50 (odds ratio 0.22 per percentage point), against −1.05
+   before. The HAC standard error is 2.7x the nonrobust one, and the p-value
+   moves from about 10⁻¹² to **0.008**, which is significant at 1%. The code is
+   the same, so the reversal comes from the sample: the 1976 start adds the
+   1978–82 inversions, the deepest in the data. Under "What would support vs.
+   contradict my expectation" below, this result now counts *against* "noisy" on
+   the regression criterion, while the lead times and false alarms still count
+   *for* it. The conclusion has to weigh the two.
+
 **Limitation to flag up front:** even with six recessions in the 1976-06 to
 present window, the regression is best read as a compact description of the
 same pattern the charts show, not a rigorously powered causal test. This will
