@@ -1,7 +1,5 @@
 # Plan: Does an Inverted Yield Curve Reliably Predict Recessions?
 
-Revised 2026-10-01: revision history removed for submission. The method below is the final one. Earlier versions are in git.
-
 ## Question
 
 Does the historical indicator of a "yeild curve inversion" (negative 10yr minus 2yr treasury spread) reliably precede U.S. recessions, or is it a noiser signal that its reputation suggests? 
@@ -9,7 +7,7 @@ Does the historical indicator of a "yeild curve inversion" (negative 10yr minus 
 **expectation going in** my gut reaction is that the signal is a historical signal because there is evidence. However, as the american economy has changed over the last century I expect the signal to be little noisy. as a result, i expect inversions to precede **most** recessions but with an inconsistent lag time. 
 
 ## Data sources
-All data is pulled live from the FRED API using the `fredapi` package so that the notebook pulls fresh data everyrun -- no CSVs. the following series are what the notebook pulls from FRED.
+All data is pulled live from FRED API using the `fredapi` package so that the notebook can pull fresh data each run not use CSVs. the series below are what are being pulled from fred: 
 
 | Series  | What it is                                     | Frequency |
 |---------|-------------------------------------------------|-----------|
@@ -17,11 +15,8 @@ All data is pulled live from the FRED API using the `fredapi` package so that th
 | `GS2`   | 2-Year Treasury Constant Maturity Rate           | Monthly   |
 | `USREC` | NBER-based Recession Indicator (1 = recession)   | Monthly   |
 
-Sample period: **1976-06 to present**. This is the earliest possible start date,
-because FRED's `GS2` series does not exist before 1976-06. It also tests the
-indicator across several monetary policy regimes: the late-1970s inflation, the
-Volcker disinflation, and the post-1990 era. That means six NBER recessions
-(1980, 1981–82, 1990–91, 2001, 2007–09, 2020) plus the 2022–24 inversion episode.
+Sample period: **1976-06 to present**. This sample period is used because the data does not exist prior to 1976-06 in fred. moreover, the indicator tests the spread across several monetary policy regimes like the late 70s period of inflation, disinflation, and the post 1990-era. as a result of this sample period it means in the data we have 6 NBER recessions. 
+
 
 API key handling: `FRED_API_KEY` lives in a `.env` file (gitignored), loaded with
 `python-dotenv`'s `load_dotenv()`, and passed to `Fred(api_key=os.getenv("FRED_API_KEY"))`
@@ -43,8 +38,7 @@ API key handling: `FRED_API_KEY` lives in a `.env` file (gitignored), loaded wit
    is wrong.
 
 ## Inversion episodes
-Runs of `spread < 0` separated by a gap of **three months or less** are one
-episode (`MAX_GAP = 3`). Single-month dips are kept rather than filtered out.
+Runs of `spread < 0` seperated by a gap of three months or less are one episdode (`MAX_GAP = 3`). furthermore, single month dips are kept rather than filtered out. 
 
 ## Lead times and false alarms
 One constant, `SIGNAL_WINDOW = 24`, is used in both directions:
@@ -60,43 +54,24 @@ One constant, `SIGNAL_WINDOW = 24`, is used in both directions:
 - An episode that started before the same recession as a later episode is
   **superseded**; only the most recent one sets the lead.
 
-24 sits just above the longest lead in the sample, so the window is a choice,
-not a finding, and the conclusion says so.
+24 months is used and sits just above the longest lead in the sample, so the window is a choice,not a finding. 
 
 ## Charts
-1. **Line chart** of the spread over time, a horizontal line at 0, and recession
-   bars shaded using `USREC` + `fill_between` — direct reuse of the week-4
-   recession-shading skill, applied to a new series.
-2. **Per-episode timeline** on a calendar axis: one row per episode, a bar over
-   its inverted months, and an arrow from each signal episode's onset to the
-   recession it was matched to. Superseded episodes are faded; false alarms get
-   no arrow and are labeled with how long they went without a recession.
-3. **Bar chart** of "months between inversion onset and recession onset", one row
-   per **recession**. This is the chart that will visually show whether the lag
-   is consistent (supports "reliable") or scattered (supports "noisy"). False
-   alarms appear below the recessions as hatched rows, with a dashed line at the
-   24-month window. A recession with no inversion gets a text row and no bar.
+1. **Line Chart** of the spread over time, a horizontal line at 0, and the recession 
+   bars shaded using `USREC` + `fill_between` which is a direct reuse of the week-4 recession shading skill we applied to a different series. 
+2. **Bar Chart** of months between inversion and recession onset. ther is one row 
+   per **recession**. this is the chart that clearly shows whether the lag is consistent or scattered. false alarms appear below the recessions in red with a dashed line at the 24th month line. a recession with no inversion has no bar and a text row. 
+
 
 ## Test
-**Logistic regression** (`statsmodels.api.Logit`): `USREC ~ spread_lag12`,
-asking whether the spread 12 months ago predicts recession now. One lag only,
-kept simple, fit once with HAC (Newey-West) standard errors
-(`cov_type="HAC", cov_kwds={"maxlags": 12}`), because recession months come in
-contiguous runs and are not independent observations. This goes a little beyond
-what's been lectured so far — `statsmodels` has only been mentioned in the
-toolkit overview — so every argument and output field gets explained in the
-notebook.
+**Logistic regression** (`statsmodels.api.Logit`): `USREC ~ spread_lag12`, asks whether the spread 12 months ago from present day predicts recession now. use one lag only, keeps it simple, fit once with HAC (Newey and West), standard erros asking whether the spread 12 months ago predicts recession now. One lag only, (`cov_type="HAC", cov_kwds={"maxlags": 12}`), because recession months come in runs. explain each argument and ouput in notebook since this goes a little beyond the current level of the class. 
 
-**Limitation to flag up front:** with six recessions in the sample, the
-regression is best read as a compact description of the same pattern the charts
-show, not a rigorously powered causal test. This will be stated plainly in the
-conclusion rather than overstating the p-value.
+## Limitations to flag 
+with six recession samples the regression is best read as a compact description of the same patterns in the charts 
 
 ## What would support vs. contradict my expectation
-- **Supports "noisy":** lead times vary meaningfully across episodes (e.g. some
-  6 months, some 18+), and/or the regression coefficient is not statistically
-  significant, and/or the 2022–23 inversion behaves differently from the
-  earlier ones.
-- **Contradicts "noisy" (i.e., signal is reliable):** all episodes precede
-  recession within a similar, narrow window, and the regression shows a
-  strong, significant relationship.
+
+- **Supports "Noisy"** is the lead times are meaningful across episodes (some 6 months, others 18 or more), and/or the regression coefficient is not statistically significant. moreover, at least one recession has no inversion in the prior 24 months; and/or one inversion is a false alarm.  
+
+- **signal is reliable and "Noisy" is contradicted** all the episodes precede recession within a similar, narrow window, and the regression shows a significant relationship. 
+
